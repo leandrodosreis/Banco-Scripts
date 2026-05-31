@@ -91,7 +91,7 @@ select tbl_livro.titulo as titulo_livro, tbl_livro.biografia as biografia_livro,
 select tbl_livro.titulo , tbl_livro.valor, tbl_livro.qtde_paginas, tbl_livro.data_publicacao, tbl_livro.isbn,
 		tbl_acabamento.tipo,
         tbl_pais_origem.pais,
-        tbl_genero.nome,
+        tbl_genero.genero,
         tbl_editora.nome,
         tbl_telefone.telefone,
         tbl_autor.nome, tbl_autor.data_nascimento,
@@ -103,14 +103,90 @@ select tbl_livro.titulo , tbl_livro.valor, tbl_livro.qtde_paginas, tbl_livro.dat
             on tbl_acabamento.id = tbl_livro.id_acabamento
 			inner join tbl_pais_origem
             on tbl_pais_origem.id = tbl_livro.id_pais_origem
-			inner join tbl_genero
+			inner join tbl_livro_genero
+            on tbl_livro.id = tbl_livro_genero.id_livro
+            inner join tbl_genero
 			on tbl_genero.id = tbl_livro_genero.id_genero
+            
+			inner join tbl_livro_editora
+			on tbl_livro.id = tbl_livro_editora.id_livro
 			inner join tbl_editora
 			on tbl_editora.id = tbl_livro_editora.id_editora
+			inner join tbl_telefone
+			on tbl_telefone.id = tbl_editora.id_telefone
+            
+            inner join tbl_livro_autor
+            on tbl_livro.id = tbl_livro_autor.id_livro
 			inner join tbl_autor
 			on tbl_autor.id = tbl_livro_autor.id_autor
 			inner join tbl_sexo 
 			on tbl_sexo.id = tbl_autor.id_sexo
-			inner join tbl_nacionalidade
+			inner join tbl_autor_nacionalidade
+            on tbl_autor.id = tbl_autor_nacionalidade.id_autor
+            inner join tbl_nacionalidade
+			on tbl_nacionalidade.id = tbl_autor_nacionalidade.id_nacionalidade;
+            
+            
+#Utilizando a mesma estrutura do exercício anterior (passando por todas as
+#tabelas), filtre o resultado para exibir apenas as informações das obras cujo valor
+#do livro seja maior que R$ 50,00.
+select tbl_livro.titulo , tbl_livro.valor, tbl_livro.qtde_paginas, tbl_livro.data_publicacao, tbl_livro.isbn,
+		tbl_acabamento.tipo,
+        tbl_pais_origem.pais,
+        tbl_genero.genero,
+        tbl_editora.nome,
+        tbl_telefone.telefone,
+        tbl_autor.nome, tbl_autor.data_nascimento,
+        tbl_sexo.nome,
+        tbl_nacionalidade.nome
+        
+        from tbl_livro
+			inner join tbl_acabamento 
+            on tbl_acabamento.id = tbl_livro.id_acabamento
+			inner join tbl_pais_origem
+            on tbl_pais_origem.id = tbl_livro.id_pais_origem
+			inner join tbl_livro_genero
+            on tbl_livro.id = tbl_livro_genero.id_livro
+            inner join tbl_genero
+			on tbl_genero.id = tbl_livro_genero.id_genero
+            
+			inner join tbl_livro_editora
+			on tbl_livro.id = tbl_livro_editora.id_livro
+			inner join tbl_editora
+			on tbl_editora.id = tbl_livro_editora.id_editora
+			inner join tbl_telefone
+			on tbl_telefone.id = tbl_editora.id_telefone
+            
+            inner join tbl_livro_autor
+            on tbl_livro.id = tbl_livro_autor.id_livro
+			inner join tbl_autor
+			on tbl_autor.id = tbl_livro_autor.id_autor
+			inner join tbl_sexo 
+			on tbl_sexo.id = tbl_autor.id_sexo
+			inner join tbl_autor_nacionalidade
+            on tbl_autor.id = tbl_autor_nacionalidade.id_autor
+            inner join tbl_nacionalidade
 			on tbl_nacionalidade.id = tbl_autor_nacionalidade.id_nacionalidade
             
+            where tbl_livro.valor > 50.00;
+            
+
+#Gere um relatório que mostre o nome da nacionalidade do autor e a média
+#de páginas dos livros escritos por autores daquela nacionalidade. O relatório só
+#deve considerar livros físicos (com acabamento diferente de 'Ebook / Digital').
+select tbl_nacionalidade.nome , round(avg(tbl_livro.qtde_paginas),0)
+			from tbl_nacionalidade
+				inner join tbl_autor_nacionalidade
+				on tbl_nacionalidade.id = tbl_autor_nacionalidade.id_nacionalidade
+				inner join tbl_autor
+				on tbl_autor.id = tbl_autor_nacionalidade.id_autor
+				inner join tbl_livro_autor
+				on tbl_autor.id = tbl_livro_autor.id_autor
+                inner join tbl_livro
+                on tbl_livro.id = tbl_livro_autor.id_livro
+				inner join tbl_acabamento
+				on tbl_acabamento.id = tbl_livro.id_acabamento
+                
+			where tbl_acabamento.tipo != 'Ebook / Digital'
+            group by tbl_nacionalidade.nome;
+                
